@@ -77,7 +77,12 @@ function createDom(type) {
 function updateProps(dom, props) {
   for (const prop in props) {
     if (prop !== "children") {
-      dom[prop] = props[prop];
+      if (prop.startsWith("on")) {
+        const event = prop.slice(2).toLowerCase();
+        dom.addEventListener(event, props[prop]);
+      } else {
+        dom[prop] = props[prop];
+      }
     }
   }
 }
