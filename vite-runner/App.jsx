@@ -1,13 +1,16 @@
 import React from "./core/react.js";
 
+let count = 1;
 const Counter = ({ num }) => {
   function handleClick() {
+    count++;
+    React.update();
     console.log("click");
   }
   return (
     <div>
       Good evening! mini-react {num}
-      <button onClick={handleClick}>click</button>
+      <button onClick={handleClick}>click{count}</button>
     </div>
   );
 };
