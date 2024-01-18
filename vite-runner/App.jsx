@@ -1,48 +1,71 @@
 import React from "./core/react.js";
 
-let count = 1;
+let countFoo = 1;
 let showBar = false;
 let props = { id: 13 };
+
 const Counter = ({ num }) => {
-  const foo = (
-    <div>
-      foo
-      <div>child1</div>
-      <div>child2</div>
-    </div>
-  );
-  const bar = () => {
+  const update = React.update();
+  console.log("run counter");
+  const Foo = () => {
+    function handleClick() {
+      countFoo++;
+      update();
+    }
+    console.log("run foo");
+    return (
+      <div>
+        <button onClick={handleClick}>click</button>
+        foo {countFoo}
+        <div>child1</div>
+        <div>child2</div>
+      </div>
+    );
+  };
+  const Bar = () => {
+    console.log("run bar");
     return <div {...props}>bar</div>;
   };
-
-  function handleClick() {
-    count++;
-    React.update();
-    console.log("click");
-  }
   function handleShowBar() {
     showBar = !showBar;
     props.id = 100;
-    React.update();
+    update();
   }
   return (
     <div>
       Good evening! mini-react {num}
-      <button onClick={handleClick}>click{count}</button>
       <div>
         <button onClick={handleShowBar}>show bar or foo?</button>
-        <div>{showBar ? bar() : foo}</div>
-        <div>{1 && foo}</div>
+        {/* <div>{showBar ? <Bar /> : <Foo />}</div> */}
+        <div>{1 && <Foo />}</div>
       </div>
     </div>
   );
 };
 
+let countBaz = 0;
+const Baz = () => {
+  console.log("run baz");
+  const update = React.update();
+  function handleClick() {
+    countBaz++;
+    update();
+  }
+  return (
+    <div>
+      <button onClick={handleClick}>+1</button>
+      baz {countBaz}
+    </div>
+  );
+};
+
 const App = () => {
+  console.log("run app");
   return (
     <div>
       ok ok
       <Counter num={123}></Counter>
+      <Baz />
       {/* <Counter num={456}></Counter> */}
     </div>
   );

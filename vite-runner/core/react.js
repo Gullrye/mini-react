@@ -36,10 +36,16 @@ let root = null;
 let currentRoot = null;
 let nextWorkOfUnit = null;
 let deletions = [];
+let wipFiber = null;
 function workLoop(deadline) {
   let shouldYield = false;
   while (!shouldYield && nextWorkOfUnit) {
     nextWorkOfUnit = performWorkOfUnit(nextWorkOfUnit);
+
+    if (root?.sibling?.type === nextWorkOfUnit?.type) {
+      nextWorkOfUnit = undefined;
+    }
+
     shouldYield = deadline.timeRemaining() < 1;
   }
 
@@ -179,6 +185,7 @@ function reconcileChildren(fiber, children) {
 }
 
 function updateFunctionComponent(fiber) {
+  wipFiber = fiber;
   const children = [fiber.type(fiber.props)];
 
   reconcileChildren(fiber, children);
@@ -220,12 +227,20 @@ function performWorkOfUnit(fiber) {
 }
 
 function update() {
-  root = {
-    dom: currentRoot.dom,
-    props: currentRoot.props,
-    alternate: currentRoot,
+  const currentFiber = wipFiber;
+  return () => {
+    // 指向当前更新的组件
+    root = {
+      ...currentFiber,
+      alternate: currentFiber,
+    };
+    // root = {
+    //   dom: currentRoot.dom,
+    //   props: currentRoot.props,
+    //   alternate: currentRoot,
+    // };
+    nextWorkOfUnit = root;
   };
-  nextWorkOfUnit = root;
 }
 
 requestIdleCallback(workLoop);
