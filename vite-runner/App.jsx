@@ -30,8 +30,9 @@ const Counter = ({ num }) => {
       Good evening! mini-react {num}
       <button onClick={handleClick}>click{count}</button>
       <div>
-        <button onClick={handleShowBar}>show</button>
+        <button onClick={handleShowBar}>show bar or foo?</button>
         <div>{showBar ? bar() : foo}</div>
+        <div>{1 && foo}</div>
       </div>
     </div>
   );

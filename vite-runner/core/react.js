@@ -139,15 +139,17 @@ function reconcileChildren(fiber, children) {
         effectTag: "update",
       };
     } else {
-      newFiber = {
-        type: child.type,
-        props: child.props,
-        child: null,
-        sibling: null,
-        parent: fiber,
-        dom: null,
-        effectTag: "placement",
-      };
+      if (child) {
+        newFiber = {
+          type: child.type,
+          props: child.props,
+          child: null,
+          sibling: null,
+          parent: fiber,
+          dom: null,
+          effectTag: "placement",
+        };
+      }
 
       // type 不一致，删除旧的，创建新的
       if (oldFiber) {
@@ -164,7 +166,9 @@ function reconcileChildren(fiber, children) {
     } else {
       prevChild.sibling = newFiber;
     }
-    prevChild = newFiber;
+    if (newFiber) {
+      prevChild = newFiber;
+    }
   });
 
   // 新的比老的短，多出来的节点需要删除
