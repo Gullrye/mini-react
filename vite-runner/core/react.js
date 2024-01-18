@@ -23,18 +23,19 @@ function createTextNode(nodeValue) {
 }
 
 function render(el, parent) {
-  nextWorkOfUnit = {
+  root = {
     dom: parent,
     props: {
       children: [el],
     },
   };
-  root = nextWorkOfUnit;
+  nextWorkOfUnit = root;
 }
 
 let root = null;
 let currentRoot = null;
 let nextWorkOfUnit = null;
+let deletions = [];
 function workLoop(deadline) {
   let shouldYield = false;
   while (!shouldYield && nextWorkOfUnit) {
@@ -49,10 +50,23 @@ function workLoop(deadline) {
   requestIdleCallback(workLoop);
 }
 
+function commitDeletion(fiber) {
+  if (fiber.dom) {
+    let fiberParent = fiber.parent;
+    while (!fiberParent.dom) {
+      fiberParent = fiberParent.parent;
+    }
+    fiberParent.dom.removeChild(fiber.dom);
+  } else {
+    commitDeletion(fiber.child);
+  }
+}
 function commitRoot() {
+  deletions.forEach(commitDeletion);
   commitWork(root.child);
   currentRoot = root;
   root = null;
+  deletions = [];
 }
 
 function commitWork(fiber) {
@@ -107,7 +121,7 @@ function updateProps(dom, nextProps, prevProps) {
   }
 }
 
-function initChildren(fiber, children) {
+function reconcileChildren(fiber, children) {
   let oldFiber = fiber.alternate?.child;
   let prevChild = null;
   children.forEach((child, index) => {
@@ -134,6 +148,10 @@ function initChildren(fiber, children) {
         dom: null,
         effectTag: "placement",
       };
+
+      if (oldFiber) {
+        deletions.push(oldFiber);
+      }
     }
 
     if (oldFiber) {
@@ -152,7 +170,7 @@ function initChildren(fiber, children) {
 function updateFunctionComponent(fiber) {
   const children = [fiber.type(fiber.props)];
 
-  initChildren(fiber, children);
+  reconcileChildren(fiber, children);
 }
 
 function updateHostComponent(fiber) {
@@ -163,7 +181,7 @@ function updateHostComponent(fiber) {
   }
 
   const children = fiber.props.children;
-  initChildren(fiber, children);
+  reconcileChildren(fiber, children);
 }
 
 function performWorkOfUnit(fiber) {
@@ -191,12 +209,12 @@ function performWorkOfUnit(fiber) {
 }
 
 function update() {
-  nextWorkOfUnit = {
+  root = {
     dom: currentRoot.dom,
     props: currentRoot.props,
     alternate: currentRoot,
   };
-  root = nextWorkOfUnit;
+  nextWorkOfUnit = root;
 }
 
 requestIdleCallback(workLoop);

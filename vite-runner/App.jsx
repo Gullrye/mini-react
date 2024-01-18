@@ -1,16 +1,32 @@
 import React from "./core/react.js";
 
 let count = 1;
+let showBar = false;
+let props = { id: 13 };
 const Counter = ({ num }) => {
+  const foo = <div>foo</div>;
+  const bar = () => {
+    return <div {...props}>bar</div>;
+  };
+
   function handleClick() {
     count++;
     React.update();
     console.log("click");
   }
+  function handleShowBar() {
+    showBar = !showBar;
+    props.id = 100;
+    React.update();
+  }
   return (
     <div>
       Good evening! mini-react {num}
       <button onClick={handleClick}>click{count}</button>
+      <div>
+        <button onClick={handleShowBar}>show</button>
+        <div>{showBar ? bar() : foo}</div>
+      </div>
     </div>
   );
 };
