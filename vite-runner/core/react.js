@@ -149,6 +149,7 @@ function reconcileChildren(fiber, children) {
         effectTag: "placement",
       };
 
+      // type 不一致，删除旧的，创建新的
       if (oldFiber) {
         deletions.push(oldFiber);
       }
@@ -165,6 +166,12 @@ function reconcileChildren(fiber, children) {
     }
     prevChild = newFiber;
   });
+
+  // 新的比老的短，多出来的节点需要删除
+  while (oldFiber) {
+    deletions.push(oldFiber);
+    oldFiber = oldFiber.sibling;
+  }
 }
 
 function updateFunctionComponent(fiber) {

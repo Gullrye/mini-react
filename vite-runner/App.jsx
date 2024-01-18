@@ -4,7 +4,13 @@ let count = 1;
 let showBar = false;
 let props = { id: 13 };
 const Counter = ({ num }) => {
-  const foo = <div>foo</div>;
+  const foo = (
+    <div>
+      foo
+      <div>child1</div>
+      <div>child2</div>
+    </div>
+  );
   const bar = () => {
     return <div {...props}>bar</div>;
   };
