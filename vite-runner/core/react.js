@@ -185,6 +185,8 @@ function reconcileChildren(fiber, children) {
 }
 
 function updateFunctionComponent(fiber) {
+  stateHooks = [];
+  stateHookIndex = 0;
   wipFiber = fiber;
   const children = [fiber.type(fiber.props)];
 
@@ -243,10 +245,47 @@ function update() {
   };
 }
 
+let stateHooks;
+let stateHookIndex;
+function useState(initial) {
+  const currentFiber = wipFiber;
+  const oldHook = currentFiber.alternate?.stateHooks[stateHookIndex];
+  const stateHook = {
+    state: oldHook ? oldHook.state : initial,
+    queue: oldHook ? oldHook.queue : [],
+  };
+
+  stateHook.queue.forEach((action) => {
+    stateHook.state = action(stateHook.state);
+  });
+
+  stateHookIndex++;
+  stateHooks.push(stateHook);
+
+  currentFiber.stateHooks = stateHooks;
+
+  function setState(action) {
+    const eagerState =
+      typeof action === "function" ? action(stateHook.state) : action;
+    if (eagerState === stateHook.state) return;
+    stateHook.queue.push(typeof action === "function" ? action : () => action);
+
+    // 指向当前更新的组件
+    root = {
+      ...currentFiber,
+      alternate: currentFiber,
+    };
+    nextWorkOfUnit = root;
+  }
+
+  return [stateHook.state, setState];
+}
+
 requestIdleCallback(workLoop);
 
 const React = {
   update,
+  useState,
   createElement,
   render,
 };

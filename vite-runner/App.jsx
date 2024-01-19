@@ -59,6 +59,26 @@ const Baz = () => {
   );
 };
 
+const State = () => {
+  const [count, setCount] = React.useState(10);
+  const [count1, setCount1] = React.useState(20);
+  console.log("run state");
+  function handleClick() {
+    setCount(() => {
+      return count + 1;
+    });
+    setCount1(count1 + 10);
+    // setCount1(count1); // state 相同时，不重复更新
+  }
+  return (
+    <div>
+      <button onClick={handleClick}>useState</button>
+      count: {count}
+      count1: {count1}
+    </div>
+  );
+};
+
 const App = () => {
   console.log("run app");
   return (
@@ -66,6 +86,7 @@ const App = () => {
       ok ok
       <Counter num={123}></Counter>
       <Baz />
+      <State />
       {/* <Counter num={456}></Counter> */}
     </div>
   );
