@@ -70,6 +70,20 @@ const State = () => {
     setCount1(count1 + 10);
     // setCount1(count1); // state 相同时，不重复更新
   }
+
+  React.useEffect(() => {
+    console.log("init");
+    return () => {
+      console.log("cleanup");
+    };
+  }, [count]);
+  React.useEffect(() => {
+    console.log("init1");
+    return () => {
+      console.log("cleanup 1");
+    };
+  }, [count1]);
+
   return (
     <div>
       <button onClick={handleClick}>useState</button>
